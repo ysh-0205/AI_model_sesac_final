@@ -79,3 +79,22 @@
   "tier_interpretation": "Tier 1: Observation/Medium Risk (Gray Zone or Low Confidence in Safety - Needs Review)"
 }
 ```
+
+# ✅ 프로젝트 환경 정보                 
+
+
+### Python Version
+Python: 3.13.9
+
+### External Dependencies (requirements.txt)
+| Package | Version |
+| :--- | :--- |
+| fastapi | 0.121.1 |
+| joblib | 1.5.2 |
+| lightgbm | 4.6.0 |
+| numpy | 2.3.4 |
+| pandas | 2.3.3 |
+| pydantic | 2.12.4 |
+| scikit-learn | 1.7.2 |
+| uvicorn | 0.38.0 |
+
