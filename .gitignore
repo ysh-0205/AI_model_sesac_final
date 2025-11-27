@@ -74,10 +74,6 @@ logs/
 *.tar.gz
 *.7z
 
-# Project-specific large files (ignore these to avoid big binary commits)
-accidents.7z
-enhanced_accident_severity_pipeline.joblib
-
 # Compiled extensions
 *.so
 *.pyd
