@@ -16,9 +16,9 @@ import os  # <-- 경로 디버깅을 위해 os 모듈 추가
 MODEL_FILENAME = 'enhanced_accident_severity_pipeline.joblib'
 
 # 3-Tier Risk Mapping Thresholds
-T_HIGH = 0.25  # Tier 2 (High) 결정 기준: P(Sev 3) >= T_HIGH
-T_LOW = 0.10  # Low Risk 영역 시작 기준: P(Sev 3) < T_LOW
-N_SAFETY = 0.90  # Tier 0 (Low) 확정 기준: P(Sev 3) < T_LOW 이면서 P(Sev 2) >= N_SAFETY
+T_HIGH = 0.70  # Tier 2 (High) 결정 기준: P(Sev 3) >= T_HIGH (실제 경로 예측값을 기준으로 상향 조정)
+T_LOW = 0.15  # Low Risk 영역 시작 기준: P(Sev 3) < T_LOW ('안전한 조건' 테스트 결과를 반영하여 상향)
+N_SAFETY = 0.50  # Tier 0 (Low) 확정 기준: P(Sev 2) >= N_SAFETY (P(Sev3)이 낮아도 P(Sev2)가 높으면 안전으로 판단)
 
 # 모델 학습 시 사용된 최종 10개 피처 리스트 (순서 중요!)
 FEATURES = [
@@ -173,28 +173,31 @@ def predict_risk(data: FeatureData):
     p_sev2 = y_proba[0]  # Severity 2 확률
     p_sev3 = y_proba[1]  # Severity 3 확률
 
-    # 4. 3-Tier Risk Level 로직 적용 (안전 최우선 로직)
-    predicted_risk_tier = 1  # 기본값은 Tier 1 (관찰 필요)로 설정
-
-    # Tier 2 (High) - P(Sev 3) >= T_HIGH (기존 Tier 3)
-    if p_sev3 >= T_HIGH:
-        predicted_risk_tier = 2
-    # Low Risk 영역 (P(Sev 3) < T_LOW)에 진입한 경우
-    elif p_sev3 < T_LOW:
-        # Tier 0 (Low/Safe) - P(Sev 2) >= N_SAFETY (이중 안전 검증 통과)
-        if p_sev2 >= N_SAFETY:
-            predicted_risk_tier = 0
-        # Tier 1 (Observation/Medium) - P(Sev 2) < N_SAFETY (안전 확신 부족으로 Tier 1 유지)
-        else:
-            predicted_risk_tier = 1
-    # Tier 1 (Observation/Medium) - T_LOW <= P(Sev 3) < T_HIGH (Gray Zone, 기본값 1 유지)
-    # else에 해당하면 p_sev3는 T_LOW와 T_HIGH 사이에 있으므로 Tier 1이 됩니다.
-
     # --- 💡 리턴 전 중간값/최종값 터미널 출력 (디버깅용) ---
     print("\n[AI CORE LOG: 예측 전송 데이터 확인]")
     print(f"1. 최종 입력 피처 (10개): {X_input.values.tolist()[0]}")
     print(f"2. Raw 예측 확률: P(Sev 2)={p_sev2:.4f}, P(Sev 3)={p_sev3:.4f}")
-    print(f"3. 할당된 최종 Risk Tier: {predicted_risk_tier}")
+    print(f"3. 적용된 임계값: T_HIGH={T_HIGH}, T_LOW={T_LOW}, N_SAFETY={N_SAFETY}")
+
+    # 4. 3-Tier Risk Level 로직 적용 (안전 최우선 로직)
+    tier_reason = ""
+    if p_sev3 >= T_HIGH:
+        predicted_risk_tier = 2
+        tier_reason = f"P(Sev 3)({p_sev3:.4f}) >= T_HIGH({T_HIGH})"
+    elif p_sev3 < T_LOW:
+        if p_sev2 >= N_SAFETY:
+            predicted_risk_tier = 0
+            tier_reason = f"P(Sev 3)({p_sev3:.4f}) < T_LOW({T_LOW}) and P(Sev 2)({p_sev2:.4f}) >= N_SAFETY({N_SAFETY})"
+        else:
+            predicted_risk_tier = 1
+            tier_reason = f"P(Sev 3)({p_sev3:.4f}) < T_LOW({T_LOW}) but P(Sev 2)({p_sev2:.4f}) < N_SAFETY({N_SAFETY})"
+    else: # T_LOW <= p_sev3 < T_HIGH
+        predicted_risk_tier = 1
+        tier_reason = f"T_LOW({T_LOW}) <= P(Sev 3)({p_sev3:.4f}) < T_HIGH({T_HIGH})"
+
+
+    print(f"4. Tier 결정 로직: {tier_reason}")
+    print(f"5. 할당된 최종 Risk Tier: {predicted_risk_tier}")
     print("[AI CORE LOG: 데이터 확인 완료]")
     # -------------------------------------------------------------
 

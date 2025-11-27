@@ -1,0 +1,90 @@
+# Byte-compiled / caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Conda / environment files
+environment.yml
+env.yml
+
+# Installer logs and files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+coverage.*
+nosetests.xml
+coverage.xml
+
+# mypy
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln
+*.pyproj
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files and secrets
+.env
+.env.*
+
+# Data, models and large artifacts
+data/
+datasets/
+raw_data/
+models/
+outputs/
+logs/
+*.joblib
+*.pkl
+*.model
+*.h5
+*.ckpt
+*.pth
+*.onnx
+*.sav
+*.zip
+*.tar.gz
+*.7z
+
+# Project-specific large files (ignore these to avoid big binary commits)
+accidents.7z
+enhanced_accident_severity_pipeline.joblib
+
+# Compiled extensions
+*.so
+*.pyd
+*.dll
+
+# Misc
+htmlcov/
+coverage/
+node_modules/
+__MACOSX/
